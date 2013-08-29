@@ -30,7 +30,11 @@ module Resque
       def has_remaining_performs_key?(key)
         # Redis SETNX: sets the keys if it doesn't exist, returns true if key was created
         new_key = Resque.redis.setnx(key, @max_performs - 1)
-        Resque.redis.expire(key, @period) if new_key
+        # MD Aug-2013. Set expiration if a new key.
+        # Also, ff the key was mistakenly created with no TTL, set expiration. Otherwise waiting_room will deadlock.
+        if new_key || (Resque.redis.get(key) && Resque.redis.ttl(key) < 0)
+          Resque.redis.expire(key, @period)
+        end
 
         return !new_key
       end

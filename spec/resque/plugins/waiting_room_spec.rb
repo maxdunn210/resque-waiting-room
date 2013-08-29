@@ -79,6 +79,15 @@ describe Resque::Plugins::WaitingRoom do
       DummyJob.has_remaining_performs_key?(DummyJob.waiting_room_redis_key)
     end
 
+    it "should re-expire the redis key if created but no TTL" do
+      DummyJob.has_remaining_performs_key?(DummyJob.waiting_room_redis_key)
+      Resque.redis.del(DummyJob.waiting_room_redis_key)
+      Resque.redis.set(DummyJob.waiting_room_redis_key, 10)
+      Resque.redis.should_receive(:setnx).and_return(false)
+      Resque.redis.should_receive(:expire)
+      DummyJob.has_remaining_performs_key?(DummyJob.waiting_room_redis_key)
+    end
+
     it "should return false if the key is new" do
       Resque.redis.should_receive(:setnx).and_return(true)
       Resque.redis.should_receive(:expire)
