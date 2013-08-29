@@ -6,6 +6,12 @@ A [Resque][rq] plugin. Requires Resque >= 1.19 and a >= 1.9 Ruby (MRI, JRuby or 
 If you want to limit the number of performs of a job for a given period, extend it
 with this module.
 
+## MD Aug-2013 Changes
+
+Added a check for Redis keys mistakenly created without a TTL to avoid possible deadlock.
+
+Also bumped up version to 0.3.
+
 ## MD Jun-2013 Changes
 
 There was a problem with Resque 1.24 where the DontPerform exception was moved to Resque::Job:DontPerform so
